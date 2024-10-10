@@ -1,0 +1,39 @@
+﻿@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer _localizer
+@inject Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Builder.RequestLocalizationOptions> _locOptions
+
+@{
+    var culture = Context.Features.Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+
+    var cultureList = _locOptions.Value.SupportedUICultures.Select(x => new SelectListItem
+            {
+                Value = x.Name,
+                Text = _localizer.GetString(x.Name)
+            }).OrderBy(x => x.Text).ToList();
+
+    var returnUrl = string.IsNullOrWhiteSpace(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+}
+
+<ul class="navbar-nav" style="display:inline-flex">
+    <li class="nav-item">
+        <a asp-controller="Language" asp-action="ChangeCulture" asp-route-returnUrl="@returnUrl" asp-route-culture="en">
+            <img src="~/images/cultureflags/england.png" alt="@_localizer["en"]" width="30" margin="5" />
+        </a>
+    </li>
+    <li class="nav-item">
+        <a asp-controller="Language" asp-action="ChangeCulture" asp-route-returnUrl="@returnUrl" asp-route-culture="fi">
+            <img src="~/images/cultureflags/finland.png" alt="@_localizer["fi"]" width="30" margin="5" />
+        </a>
+    </li>
+    <li class="nav-item">
+        <a asp-controller="Language" asp-action="ChangeCulture" asp-route-returnUrl="@returnUrl" asp-route-culture="sv">
+            <img src="~/images/cultureflags/sverige.png" alt="@_localizer["sv"]" width="30" margin="5" />
+        </a>
+    </li>
+
+</ul>
+
+<div class="ms-3" style="display:inline">
+    <form asp-controller="Language" asp-action="ChangeCulture" asp-route-returnUrl="@returnUrl" method="post">
+        <select name="culture" asp-for="@culture.RequestCulture.UICulture.Name" asp-items="@cultureList" onchange="this.form.submit();"></select>
+    </form>
+</div>
